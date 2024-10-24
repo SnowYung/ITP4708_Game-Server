@@ -19,6 +19,16 @@ button:hover{
     color: #fff;
 }
 
+.score-left {
+    text-align: left;
+    float: left;
+}
+
+.score-right {
+    text-align: right;
+    float: right;
+}
+
 .card-grid{
     margin-top: 40px;
     display: grid;

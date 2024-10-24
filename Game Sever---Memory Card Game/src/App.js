@@ -3,75 +3,110 @@ import './App.css'
 import SingleCard from './components/SingleCard';
 
 const cardImages = [
-    { "src": "/img/helmet-1.png", matched: false },
-    { "src": "/img/potion-1.png", matched: false },
-    { "src": "/img/ring-1.png", matched: false },
-    { "src": "/img/scroll-1.png", matched: false },
-    { "src": "/img/shield-1.png", matched: false },
-    { "src": "/img/sword-1.png", matched: false }
-]
+    { "src": "/img/Chariot Card.jpg", matched: false },
+    { "src": "/img/Death Card.jpg", matched: false },
+    { "src": "/img/Devil Card.jpg", matched: false },
+    { "src": "/img/Emperor Card.jpg", matched: false },
+    { "src": "/img/Empress Card.jpg", matched: false },
+    { "src": "/img/Fool Card.jpg", matched: false }
+];
 
 function App() {
 
-    const [cards, setCards] = useState([])
-    const [truns, setTruns] = useState(0)
-    const [choiceOne, setChoiceOne] = useState(null)
-    const [choiceTwo, setChoiceTwo] = useState(null)
-    const [disabled, setDisabled] = useState(false)
+    const [cards, setCards] = useState([]);
+    const [totalrounds, setTotalRounds] = useState(0);
+    const [choiceOne, setChoiceOne] = useState(null);
+    const [choiceTwo, setChoiceTwo] = useState(null);
+    const [disabled, setDisabled] = useState(false);
+    const [currentPlayer, setCurrentPlayer] = useState(1);
+    const [playerScores, setPlayerScores] = useState({ 1: 0, 2: 0 });
+    const [gameOver, setGameOver] = useState(false);
 
     const shuffleCards = () => {
         const shuffledCards = [...cardImages, ...cardImages]
             .sort(() => Math.random() - 0.5)
-            .map((card) => ({ ...card, id: Math.random() }))
+            .map((card) => ({ ...card, id: Math.random() }));
 
-        setChoiceOne(null)
-        setChoiceTwo(null)
-        setCards(shuffledCards)
-        setTruns(0)
+        setChoiceOne(null);
+        setChoiceTwo(null);
+        setCards(shuffledCards);
+        setTotalRounds(0);
+        setCurrentPlayer(1);
+        setPlayerScores({ 1: 0, 2: 0 });
+        setGameOver(false);
     }
 
     const handleChoice = (card) => {
-        choiceOne ? setChoiceTwo(card) : setChoiceOne(card)
-    }
+        if (!disabled && !gameOver)
+            choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
+    };
 
     useEffect(() => {
         if (choiceOne && choiceTwo) {
-            setDisabled(true)
+            setDisabled(true);
 
             if (choiceOne.src === choiceTwo.src) {
                 setCards(prevCards => {
                     return prevCards.map(card => {
-                        if(card.src === choiceOne.src){
-                            return {...card, matched: true}
-                        }else{
-                            return card
+                        if (card.src === choiceOne.src) {
+                            return { ...card, matched: true };
+                        } else {
+                            return card;
                         }
-                    })
-                })
-                resetTurn()
+                    });
+                });
+
+                setPlayerScores(prevScores => ({
+                    ...prevScores,
+                    [currentPlayer]: prevScores[currentPlayer] + 1
+                }));
+                resetTurn(true);
             } else {
-                setTimeout(() => resetTurn(), 1000)
+                setTimeout(() => resetTurn(false), 1000);
             }
         }
-    }, [choiceOne, choiceTwo])
-
-    console.log(cards)
-
-    const resetTurn = () => {
-        setChoiceOne(null)
-        setChoiceTwo(null)
-        setTruns(prevTurns => prevTurns + 1)
-        setDisabled(false)
-    }
+    }, [choiceOne, choiceTwo, currentPlayer]);
 
     useEffect(() => {
-        shuffleCards()
-    }, [])
+        if (cards.length > 0 && cards.every(card => card.matched)){
+            setGameOver(true);
+        }
+    }, [cards]);
+
+    const resetTurn = (matched) => {
+        setChoiceOne(null);
+        setChoiceTwo(null);
+        setTotalRounds(prevTurns => prevTurns + 1);
+        setDisabled(false);
+
+        if (!matched) {
+            setCurrentPlayer(prevPlayer => (prevPlayer === 1 ? 2 : 1));
+        }
+    };
+
+    useEffect(() => {
+        shuffleCards();
+    }, []);
 
     return (
         <div className="App">
             <h1>Fabled Elements</h1>
+
             <button onClick={shuffleCards}>New Game</button>
+
+            <p>currentPlayer : Player {currentPlayer}</p>
+
+            <p className="score-left">Player 1 Score: {playerScores[1]}</p>
+
+            <p class="score-right">Player 2 Score: {playerScores[2]}</p>
+
+            {gameOver && (
+                <div>
+                    <h2>Game Over!</h2>
+                    <p>Total Rounds: {totalrounds}</p>
+                    <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
+                </div>
+            )}
 
             <div className="card-grid">
                 {cards.map(card => (
@@ -84,7 +119,9 @@ function App() {
                     />
                 ))}
             </div>
-            <p>Turns: {truns}</p>
+
+            <p>Totel Rounds: {totalrounds}</p>
+
         </div>
     );
 }
