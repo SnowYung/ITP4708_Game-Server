@@ -1,13 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700;800&display=swap');
 
-body{
-    font-family: Raleway, sans-serif;
+body {
+    font-family: 'Raleway', sans-serif;
     margin: 0;
     font-size: 1.5em;
     text-align: center;
-    background-image: url("../public/img/Background.jpg");
+    background-image: url("/public/img/Game Background.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     color: #fff;
+    line-height: 1;
+    padding: 20px;
 }
