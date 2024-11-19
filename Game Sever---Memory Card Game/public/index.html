@@ -13,6 +13,47 @@
         <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
         <title>React App</title>
+
+        <script>
+            $(function () {
+                const ws = new WebSocket(`ws://${location.host}`);
+    
+                $('#n').prop('disabled',false);
+                $('#m').prop('disabled',true);
+    
+                $('form').submit( function(e){
+                    e.preventDefault(); // prevents page reloading
+        
+                    if (!$('#n').is(':disabled')) {
+                        ws.send(JSON.stringify({type:'set_name', name:$('#n').val(), message:''}));
+                        $('#n').prop('disabled',true);
+                        $('#m').prop('disabled',false);
+                    }
+                    else {
+                        ws.send(JSON.stringify({type:'message', name:$('#n').val(), message:$('#m').val() }));
+                        $('#m').val('');
+                    }
+                    return false;
+                });
+    
+                
+                ws.onmessage = function(event) {
+                    const obj = JSON.parse(event.data);
+                    if(obj.type==='message') {
+                        let msg = `<b>${obj.name}:</b> ${obj.message}`;
+                        $('#messages').append($('<li>').html(msg));
+                    }
+                    if(obj.type==='sys_c_connect') {
+                        let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
+                        $('#messages').append($('<li>').html(msg));
+                    }
+                    if(obj.type==='sys_c_disconnect') {
+                        let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
+                        $('#messages').append($('<li>').html(msg));
+                    }
+                }
+            });
+        </script>
     </head>
 
     <body>

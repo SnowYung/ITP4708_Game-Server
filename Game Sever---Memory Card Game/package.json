@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "react-scripts start"
   },
   "keywords": [],
   "author": "",
@@ -12,8 +12,22 @@
   "dependencies": {
     "express": "^4.21.1",
     "game-sever---memory-card-game": "file:",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1",
     "socket.io": "^4.8.1",
     "ws": "^8.18.0",
     "zeromq": "^5.3.1"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
