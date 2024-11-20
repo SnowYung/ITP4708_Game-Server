@@ -1,7 +1,32 @@
 .App {
-    max-width: 1200px;
-    margin: 10px auto;
-    padding: 10px;
+    height: 100%;
+    width: 100%;
+
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.App .game {
+    flex-basis: 80%;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-evenly;
+}
+
+.App .game .card-grid {
+    padding: 10px 0px 0px 10px; 
+
+    display: grid;
+    grid-template-columns: repeat(11, calc((100% / 11) - 10px));
+    grid-template-rows: repeat(4, calc(100% / 4 - 10px));
+
+    column-gap: 10px;
+    row-gap: 10px;
+}
+
+.App .info {
+    flex-basis: 20%;
 }
 
 button {
@@ -19,27 +44,4 @@ button {
 button:hover {
     background: #c23866;
     color: #fff;
-}
-
-.score-left, .score-right {
-    font-size: 1.2em;
-    color: #fff;
-}
-
-.score-left {
-    text-align: left;
-    float: left;
-}
-
-.score-right {
-    text-align: right;
-    float: right;
-}
-
-.card-grid {
-    margin-top: 5px;
-    display: inline-grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
-    grid-gap: 5px;
-    justify-items: center;
 }

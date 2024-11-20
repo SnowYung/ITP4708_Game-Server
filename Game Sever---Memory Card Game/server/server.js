@@ -1,3 +1,4 @@
+const path = require('path')
 const express = require('express')
 const app = express();
 
@@ -7,10 +8,7 @@ const {createServer} = require('http');
 const server = createServer(app);
 const wss = new WebSocket.Server({ server });
 
-app.use(express.static("public"));
-app.get('/', (req,res)=> {
-    res.sendFile(__dirname + '/public/index.html');
-})
+app.use(express.static(path.join(__dirname, '..', 'build')));
 
 wss.on('connection', function(ws) {
 

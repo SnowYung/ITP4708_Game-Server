@@ -1,15 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Raleway:wght@100;200;300;400;500;600;700;800&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
 body {
-    font-family: 'Raleway', sans-serif;
+    width: 100vw;
+    height: 100vh;
+    
     margin: 0;
+
+    font-family: 'Raleway', sans-serif;
     font-size: 1.5em;
+    line-height: 1;
     text-align: center;
+    color: #fff;
+    
+    background-color: black;
     background-image: url("/public/img/Game Background.jpg");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: #fff;
-    line-height: 1;
-    padding: 20px;
+
+    overflow: hidden;
+}
+
+#root {
+    height: 100%;
+    width: 100%;
 }

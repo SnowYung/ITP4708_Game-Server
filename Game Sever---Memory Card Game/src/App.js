@@ -84,7 +84,7 @@ function App() {
     }, [choiceOne, choiceTwo, currentPlayer]);
 
     useEffect(() => {
-        if (cards.length > 0 && cards.every(card => card.matched)){
+        if (cards.length > 0 && cards.every(card => card.matched)) {
             setGameOver(true);
         }
     }, [cards]);
@@ -106,38 +106,43 @@ function App() {
 
     return (
         <div className="App">
-            <h1>Fabled Elements</h1>
-
-            <button onClick={shuffleCards}>New Game</button>
-
-            <p>currentPlayer : Player {currentPlayer}</p>
-
-            <p className="score-left">Player 1 Score: {playerScores[1]}</p>
-
-            <p className="score-right">Player 2 Score: {playerScores[2]}</p>
-
-            {gameOver && (
-                <div>
-                    <h2>Game Over!</h2>
-                    <p>Total Rounds: {totalrounds}</p>
-                    <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
+            <div class="game">
+                <h1>Fabled Elements</h1>
+                <div className="card-grid">
+                    {cards.map(card => (
+                        <SingleCard
+                            key={card.id}
+                            card={card}
+                            handleChoice={handleChoice}
+                            flipped={card === choiceOne || card === choiceTwo || card.matched}
+                            disabled={disabled}
+                        />
+                    ))}
                 </div>
-            )}
-
-            <div className="card-grid">
-                {cards.map(card => (
-                    <SingleCard
-                        key={card.id}
-                        card={card}
-                        handleChoice={handleChoice}
-                        flipped={card === choiceOne || card === choiceTwo || card.matched}
-                        disabled={disabled}
-                    />
-                ))}
             </div>
+            <div class="info">
+                <div className="info-grid">
+                    <p>Totel Rounds: {totalrounds}</p>
+                    <p className="score-left">Player 1 Score: {playerScores[1]}</p>
+                    <p className="score-right">Player 2 Score: {playerScores[2]}</p>
+                    <p>currentPlayer : Player {currentPlayer}</p>
+                </div>
 
-            <p>Totel Rounds: {totalrounds}</p>
-
+                <div class="chat">
+                    <div className="chat-grid">
+                        {!gameOver && (
+                            <button onClick={shuffleCards}>New Game</button>
+                        )}
+                        {gameOver && (
+                            <div>
+                                <h2>Game Over!</h2>
+                                <p>Total Rounds: {totalrounds}</p>
+                                <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
