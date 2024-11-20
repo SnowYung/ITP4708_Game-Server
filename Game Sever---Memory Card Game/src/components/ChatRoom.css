@@ -1,0 +1,45 @@
+.chat-room {
+    display: flex;
+    flex-flow: column nowrap;
+
+    form {
+        background: rgb(160, 205, 220);
+        padding: 3px;
+        width: 100%;
+    }
+
+    #n {
+        border: 0;
+        padding: 3px;
+    }
+
+    #m {
+        border: 0;
+        padding: 3px;
+        margin-right: 2px;
+    }
+
+    form button {
+        background: rgb(130, 224, 255);
+        padding: 3px;
+    }
+
+    .messages {
+        flex-grow: 1;
+
+        background-color: white;
+        color: black;
+
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .messages li {
+        padding: 5px 10px;
+    }
+
+    .messages li:nth-child(odd) {
+        background: #eee;
+    }
+}

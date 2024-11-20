@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css'
 import SingleCard from './components/SingleCard';
+import ChatRoom from './components/ChatRoom';
 
 const cardImages = [
     { "src": "/img/Chariot Card.jpg", matched: false },
@@ -29,6 +30,7 @@ const cardImages = [
 
 function App() {
 
+    const ws = new WebSocket(`ws://${location.hostname}:1234`);
     const [cards, setCards] = useState([]);
     const [totalrounds, setTotalRounds] = useState(0);
     const [choiceOne, setChoiceOne] = useState(null);
@@ -104,9 +106,26 @@ function App() {
         shuffleCards();
     }, []);
 
+    
+    ws.onmessage = function (event) {
+        const obj = JSON.parse(event.data);
+        if (obj.type === 'message') {
+            let msg = `<b>${obj.name}:</b> ${obj.message}`;
+            $('#messages').append($('<li>').html(msg));
+        }
+        if (obj.type === 'sys_c_connect') {
+            let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
+            $('#messages').append($('<li>').html(msg));
+        }
+        if (obj.type === 'sys_c_disconnect') {
+            let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
+            $('#messages').append($('<li>').html(msg));
+        }
+    }
+
     return (
         <div className="App">
-            <div class="game">
+            <div className="game">
                 <h1>Fabled Elements</h1>
                 <div className="card-grid">
                     {cards.map(card => (
@@ -120,30 +139,26 @@ function App() {
                     ))}
                 </div>
             </div>
-            <div class="info">
+            <div className="info">
                 <div className="info-grid">
                     <p>Totel Rounds: {totalrounds}</p>
                     <p className="score-left">Player 1 Score: {playerScores[1]}</p>
                     <p className="score-right">Player 2 Score: {playerScores[2]}</p>
                     <p>currentPlayer : Player {currentPlayer}</p>
                 </div>
-
-                <div class="chat">
-                    <div className="chat-grid">
-                        {!gameOver && (
-                            <button onClick={shuffleCards}>New Game</button>
-                        )}
-                        {gameOver && (
-                            <div>
-                                <h2>Game Over!</h2>
-                                <p>Total Rounds: {totalrounds}</p>
-                                <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <ChatRoom ws={ws} />
             </div>
-        </div>
+            {
+                gameOver && (
+                    <div className="game-over">
+                        <h2>Game Over!</h2>
+                        <p>Total Rounds: {totalrounds}</p>
+                        <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
+                        <button className="start-btn" onClick={shuffleCards}>New Game</button>
+                    </div>
+                )
+            }
+        </div >
     );
 }
 

@@ -1,64 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <meta
-            name="description"
-            content="Web site created using create-react-app"
-        />
-        <link rel="apple-thouch-icon" href="%PUBLIC_URL%/LOGO192.png" />
-        <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-        <title>React App</title>
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Web site created using create-react-app" />
+    <link rel="apple-thouch-icon" href="%PUBLIC_URL%/LOGO192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
 
-        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-        <script>
-            $(function () {
-                const ws = new WebSocket(`ws://${location.host}`);
-    
-                $('#n').prop('disabled',false);
-                $('#m').prop('disabled',true);
-    
-                $('form').submit( function(e){
-                    e.preventDefault(); // prevents page reloading
-        
-                    if (!$('#n').is(':disabled')) {
-                        ws.send(JSON.stringify({type:'set_name', name:$('#n').val(), message:''}));
-                        $('#n').prop('disabled',true);
-                        $('#m').prop('disabled',false);
-                    }
-                    else {
-                        ws.send(JSON.stringify({type:'message', name:$('#n').val(), message:$('#m').val() }));
-                        $('#m').val('');
-                    }
-                    return false;
-                });
-    
-                
-                ws.onmessage = function(event) {
-                    const obj = JSON.parse(event.data);
-                    if(obj.type==='message') {
-                        let msg = `<b>${obj.name}:</b> ${obj.message}`;
-                        $('#messages').append($('<li>').html(msg));
-                    }
-                    if(obj.type==='sys_c_connect') {
-                        let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
-                        $('#messages').append($('<li>').html(msg));
-                    }
-                    if(obj.type==='sys_c_disconnect') {
-                        let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
-                        $('#messages').append($('<li>').html(msg));
-                    }
-                }
-            });
-        </script>
-    </head>
+    <title>React App</title>
 
-    <body>
-        <noscript>You need to enable JavaScript to run this app.</noscript>
-        <div id="root"></div>
-    </body>
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+    <div id="root"></div>
+</body>
+
 </html>

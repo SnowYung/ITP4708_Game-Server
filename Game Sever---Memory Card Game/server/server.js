@@ -12,10 +12,12 @@ app.use(express.static(path.join(__dirname, '..', 'build')));
 
 wss.on('connection', function(ws) {
 
+    console.log('User connected');
     ws.username = 'anonymous';
 
     ws.on('message', function(message) {
         var jsonObj = JSON.parse(message);
+        console.log(jsonObj);
         if(jsonObj.type==='set_name') {
             ws.username = jsonObj.name;
             wss.clients.forEach(function (client) {

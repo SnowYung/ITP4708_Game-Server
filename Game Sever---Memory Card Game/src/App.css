@@ -15,7 +15,7 @@
 }
 
 .App .game .card-grid {
-    padding: 10px 0px 0px 10px; 
+    padding: 10px 0px 0px 10px;
 
     display: grid;
     grid-template-columns: repeat(11, calc((100% / 11) - 10px));
@@ -27,9 +27,16 @@
 
 .App .info {
     flex-basis: 20%;
+
+    display: flex;
+    flex-flow: column nowrap;
 }
 
-button {
+.App .info .chat-room {
+    flex-grow: 1;
+}
+
+.start-btn {
     background: none;
     border: 2px solid #fff;
     padding: 10px 20px;
@@ -41,7 +48,23 @@ button {
     transition: background 0.3s ease;
 }
 
-button:hover {
+.start-btn {
     background: #c23866;
     color: #fff;
+}
+
+.game-over {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+
+    background-color: #aaaaaacc;
+    color: black;
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
 }
