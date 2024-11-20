@@ -106,39 +106,46 @@ function App() {
         shuffleCards();
     }, []);
 
-    
-    ws.onmessage = function (event) {
-        const obj = JSON.parse(event.data);
-        if (obj.type === 'message') {
-            let msg = `<b>${obj.name}:</b> ${obj.message}`;
-            $('#messages').append($('<li>').html(msg));
-        }
-        if (obj.type === 'sys_c_connect') {
-            let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
-            $('#messages').append($('<li>').html(msg));
-        }
-        if (obj.type === 'sys_c_disconnect') {
-            let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
-            $('#messages').append($('<li>').html(msg));
-        }
-    }
+    // ws.onmessage = function (event) {
+    //     const obj = JSON.parse(event.data);
+    //     if (obj.type === 'message') {
+    //         let msg = `<b>${obj.name}:</b> ${obj.message}`;
+    //         $('#messages').append($('<li>').html(msg));
+    //     }
+    //     if (obj.type === 'sys_c_connect') {
+    //         let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
+    //         $('#messages').append($('<li>').html(msg));
+    //     }
+    //     if (obj.type === 'sys_c_disconnect') {
+    //         let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
+    //         $('#messages').append($('<li>').html(msg));
+    //     }
+    // }
 
     return (
         <div className="App">
             <div className="game">
                 <h1>Fabled Elements</h1>
-                <div className="card-grid">
-                    {cards.map(card => (
-                        <SingleCard
-                            key={card.id}
-                            card={card}
-                            handleChoice={handleChoice}
-                            flipped={card === choiceOne || card === choiceTwo || card.matched}
-                            disabled={disabled}
-                        />
-                    ))}
-                </div>
+                
+                {!gameStarted && (
+                    <p>Waiting for another player to join...</p>
+                )}
+
+                {gameStarted && (
+                    <div className="card-grid">
+                        {cards.map(card => (
+                            <SingleCard
+                                key={card.id}
+                                card={card}
+                                handleChoice={handleChoice}
+                                flipped={card === choiceOne || card === choiceTwo || card.matched}
+                                disabled={disabled}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
+
             <div className="info">
                 <div className="info-grid">
                     <p>Totel Rounds: {totalrounds}</p>
@@ -148,16 +155,15 @@ function App() {
                 </div>
                 <ChatRoom ws={ws} />
             </div>
-            {
-                gameOver && (
-                    <div className="game-over">
-                        <h2>Game Over!</h2>
-                        <p>Total Rounds: {totalrounds}</p>
-                        <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
-                        <button className="start-btn" onClick={shuffleCards}>New Game</button>
-                    </div>
-                )
-            }
+
+            {gameOver && (
+                <div className="game-over">
+                    <h2>Game Over!</h2>
+                    <p>Total Rounds: {totalrounds}</p>
+                    <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
+                    <button className="start-btn" onClick={shuffleCards}>New Game</button>
+                </div>
+            )}
         </div >
     );
 }

@@ -3,7 +3,7 @@
     flex-flow: column nowrap;
 
     form {
-        background: rgb(160, 205, 220);
+        background: #e6e6fa;
         padding: 3px;
         width: 100%;
     }
@@ -20,15 +20,15 @@
     }
 
     form button {
-        background: rgb(130, 224, 255);
-        padding: 3px;
+        background: #ee82ee;
+        padding: 5px;
     }
 
     .messages {
         flex-grow: 1;
 
-        background-color: white;
-        color: black;
+        background-color: #aaaaaa28;
+        /* color: black; */
 
         list-style-type: none;
         margin: 0;
@@ -40,6 +40,6 @@
     }
 
     .messages li:nth-child(odd) {
-        background: #eee;
+        background: #aaaaaacc;
     }
 }
