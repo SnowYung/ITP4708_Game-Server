@@ -4,7 +4,6 @@ const app = express();
 
 const WebSocket = require('ws');
 const { createServer } = require('http');
-const { type } = require('os');
 
 const server = createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -82,6 +81,8 @@ wss.on('connection', function (ws) {
 
     ws.on('close', function () {
         console.log('User disconnected');
+        connectedClients = connectedClients.filter(client => client !== ws);
+        delete playerNames[1];
         wss.clients.forEach(function (client) {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ type: 'sys_c_disconnect', name: ws.username, message: '' }));;

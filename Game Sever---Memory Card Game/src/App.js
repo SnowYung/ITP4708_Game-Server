@@ -39,6 +39,8 @@ function App() {
     const [currentPlayer, setCurrentPlayer] = useState(1);
     const [playerScores, setPlayerScores] = useState({ 1: 0, 2: 0 });
     const [gameOver, setGameOver] = useState(false);
+    const [gameStarted, setGameStarted] = useState(false);
+    const [playerNames, setPlayerNames] = useState({});
 
     const shuffleCards = () => {
         const shuffledCards = [...cardImages, ...cardImages]
@@ -58,6 +60,28 @@ function App() {
         if (!disabled && !gameOver)
             choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
     };
+
+    useEffect(() => {
+        ws.onmessage = function(event) {
+            const obj = JSON.parse(event.data);
+            if (obj.type === 'game_start') {
+                setGameStarted(true);
+                shuffleCards();
+            }
+            if (obj.type === 'game_full') {
+                alert('Game is full, cannot join.');
+            }
+            if (obj.type === 'sys_c_connect') {
+                console.log(`${obj.name} is connected`);
+            }
+            if (obj.type === 'sys_c_disconnect') {
+                console.log(`${obj.name} is disconnected`);
+            }
+            if (obj.type === 'player_names') {
+                setPlayerNames(obj.playerNames); 
+            }
+        };
+    }, [ws]);
 
     useEffect(() => {
         if (choiceOne && choiceTwo) {
@@ -149,8 +173,8 @@ function App() {
             <div className="info">
                 <div className="info-grid">
                     <p>Totel Rounds: {totalrounds}</p>
-                    <p className="score-left">Player 1 Score: {playerScores[1]}</p>
-                    <p className="score-right">Player 2 Score: {playerScores[2]}</p>
+                    <p className="score-left"> ({playerNames[1] || 'Player 1'}) Score: {playerScores[1]}</p>
+                    <p className="score-right"> ({playerNames[2] || 'Player 2'}) Score: {playerScores[2]}</p>
                     <p>currentPlayer : Player {currentPlayer}</p>
                 </div>
                 <ChatRoom ws={ws} />
