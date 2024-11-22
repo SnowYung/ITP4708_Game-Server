@@ -32,7 +32,7 @@ function App() {
 
     const [ws, setWs] = useState(null);
     const [cards, setCards] = useState([]);
-    const [totalrounds, setTotalRounds] = useState(0);
+    const [totalRounds, setTotalRounds] = useState(0);
     const [choiceOne, setChoiceOne] = useState(null);
     const [choiceTwo, setChoiceTwo] = useState(null);
     const [disabled, setDisabled] = useState(false);
@@ -61,7 +61,7 @@ function App() {
         if (!disabled && !gameOver)
             if (choiceOne) {
                 setChoiceTwo(card);
-                let updatedGameState = {
+                const updatedGameState = {
                     type: 'update_game_state',
                     cards: cards.map(c => ({ ...c, matched: c.matched || (c === choiceOne || c === choiceTwo) })),
                     playerScores,
@@ -209,7 +209,7 @@ function App() {
 
             <div className="info">
                 <div className="info-grid">
-                    <p>Totel Rounds: {totalrounds}</p>
+                    <p>Totel Rounds: {totalRounds}</p>
                     <p className="score-left"> {playerNames[1] || 'Player 1'} Score: {playerScores[1]}</p>
                     <p className="score-right"> {playerNames[2] || 'Player 2'} Score: {playerScores[2]}</p>
                     <p>currentPlayer : {playerNames[currentPlayer] || 'Player' [currentPlayer]} </p>
@@ -220,7 +220,7 @@ function App() {
             {gameOver && (
                 <div className="game-over">
                     <h2>Game Over!</h2>
-                    <p>Total Rounds: {totalrounds}</p>
+                    <p>Total Rounds: {totalRounds}</p>
                     <p>Winner: Player {playerScores[1] > playerScores[2] ? 1 : playerScores[1] < playerScores[2] ? 2 : "Tie"}</p>
                     <button className="start-btn" onClick={shuffleCards}>New Game</button>
                 </div>

@@ -4,6 +4,7 @@ const app = express();
 
 const WebSocket = require('ws');
 const { createServer } = require('http');
+const { type } = require('os');
 
 const server = createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -12,9 +13,51 @@ app.use(express.static(path.join(__dirname, '..', 'build')));
 
 let connectedClients = [];
 let playerNames = {};
-let totalrounds = 0;
-let playerScores = { 1: 0, 2: 0 };
-let currentPlayer = 1;
+
+
+class FabledElement {
+    constructor() {
+        this._totalRounds = 0;
+        this._cards = [];
+        this._playerScores = { 1: 0, 2: 0 };
+        this._currentPlayer = 1;
+    }
+
+    get totalRounds() {
+        return this._totalRounds;
+    }
+
+    set totalRounds(value) {
+        this._totalRounds = value;
+    }
+
+    get cards() {
+        return this._cards;
+    }
+
+    set cards(value) {
+        this._cards = value;
+    }
+
+    get playerScores() {
+        return this._playerScores;
+    }
+
+    set playerScores(value) {
+        this._playerScores = value;
+    }
+
+    get currentPlayer() {
+        return this._currentPlayer;
+    }
+
+    set currentPlayer(value) {
+        this._currentPlayer = value;
+    }
+}
+
+
+let gameState = new FabledElement();
 
 wss.on('connection', function (ws) {
 
@@ -49,7 +92,7 @@ wss.on('connection', function (ws) {
 
     ws.on('message', function (message) {
         var jsonObj = JSON.parse(message);
-        console.log(jsonObj);
+        console.log(jsonObj.type);
 
         if (jsonObj.type === 'set_name') {
             ws.username = jsonObj.name;
@@ -71,13 +114,24 @@ wss.on('connection', function (ws) {
             });
         }
 
+
         if (jsonObj.type === 'update_game_state') {
-            totalrounds = jsonObj.totalrounds;
-            console.log(totalrounds);
-            playerScores = jsonObj.playerScores;
-            console.log(playerScores);
-            currentPlayer = jsonObj.currentPlayer;
-            console.log(currentPlayer);
+
+            gameState.totalRounds = jsonObj.totalRounds;
+            gameState.cards = jsonObj.cards;
+            gameState.playerScores = jsonObj.playerScores;
+            gameState.currentPlayer = jsonObj.currentPlayer;
+
+            // totalRounds = jsonObj.totalRounds;
+            // console.log('totalRounds:' + totalRounds);
+
+            // cards = jsonObj.cards;
+
+            // playerScores = jsonObj.playerScores;
+            // console.log('playerScores:' + playerScores);
+
+            // currentPlayer = jsonObj.currentPlayer;
+            // console.log('currentPlayer: ' + currentPlayer);
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify(jsonObj));
@@ -88,7 +142,7 @@ wss.on('connection', function (ws) {
         if (jsonObj.type === 'game_over') {
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'game_over', playerScores }));
+                    client.send(JSON.stringify({ type: 'game_over', playerScores: gameState.playerScores }));
                 }
             });
         }
