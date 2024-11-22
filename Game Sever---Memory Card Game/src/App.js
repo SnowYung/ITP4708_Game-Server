@@ -30,17 +30,18 @@ const cardImages = [
 
 function App() {
 
-    const ws = new WebSocket(`ws://${location.hostname}:1234`);
+    const [ws, setWs] = useState(null);
     const [cards, setCards] = useState([]);
     const [totalrounds, setTotalRounds] = useState(0);
     const [choiceOne, setChoiceOne] = useState(null);
     const [choiceTwo, setChoiceTwo] = useState(null);
     const [disabled, setDisabled] = useState(false);
-    const [currentPlayer, setCurrentPlayer] = useState(1);
     const [playerScores, setPlayerScores] = useState({ 1: 0, 2: 0 });
+    const [currentPlayer, setCurrentPlayer] = useState(1);
     const [gameOver, setGameOver] = useState(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [playerNames, setPlayerNames] = useState({});
+    const [messages, setMessages] = useState([]);
 
     const shuffleCards = () => {
         const shuffledCards = [...cardImages, ...cardImages]
@@ -58,45 +59,96 @@ function App() {
 
     const handleChoice = (card) => {
         if (!disabled && !gameOver)
-            choiceOne ? setChoiceTwo(card) : setChoiceOne(card);
+            if (choiceOne) {
+                setChoiceTwo(card);
+                let updatedGameState = {
+                    type: 'update_game_state',
+                    cards: cards.map(c => ({ ...c, matched: c.matched || (c === choiceOne || c === choiceTwo) })),
+                    playerScores,
+                    currentPlayer,
+                    totalRounds,
+                };
+                ws.send(JSON.stringify(updatedGameState));
+            } else {
+                setChoiceOne(card);
+            }
     };
 
+    const handleWebSocketMessage = (obj) => {
+        if (obj.type === 'game_start') {
+            setGameStarted(true);
+            shuffleCards();
+        }
+        if (obj.type === 'game_full') {
+            alert('Game is full, cannot join.');
+        }
+        if (obj.type === 'sys_c_connect') {
+            console.log(`${obj.name} is connected`);
+            const msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
+            setMessages(prevMessages => [...prevMessages, msg]);
+        }
+        if (obj.type === 'sys_c_disconnect') {
+            console.log(`${obj.name} is disconnected`);
+            let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
+            setMessages(prevMessages => [...prevMessages, msg]);
+        }
+        if (obj.type === 'player_names') {
+            setPlayerNames(obj.playerNames);
+        }
+        if (obj.type === 'message') {
+            let msg = `<b>${obj.name}:</b> ${obj.message}`;
+            setMessages(prevMessages => [...prevMessages, msg]);
+        }
+        if (obj.type === 'update_game_state') {
+            setCards(obj.cards);
+            setPlayerScores(obj.playerScores);
+            setCurrentPlayer(obj.currentPlayer);
+            setTotalRounds(obj.totalRounds);
+        }
+        if (obj.type === 'game_over'){
+            setGameOver(true);
+        }
+    }
+
     useEffect(() => {
-        ws.onmessage = function(event) {
-            const obj = JSON.parse(event.data);
-            if (obj.type === 'game_start') {
-                setGameStarted(true);
-                shuffleCards();
-            }
-            if (obj.type === 'game_full') {
-                alert('Game is full, cannot join.');
-            }
-            if (obj.type === 'sys_c_connect') {
-                console.log(`${obj.name} is connected`);
-            }
-            if (obj.type === 'sys_c_disconnect') {
-                console.log(`${obj.name} is disconnected`);
-            }
-            if (obj.type === 'player_names') {
-                setPlayerNames(obj.playerNames); 
-            }
+        const websocket = new WebSocket(`ws://${location.hostname}:1234`);
+
+        websocket.onopen = () => {
+            console.log('WebSocket connection opened');
         };
-    }, [ws]);
+
+        websocket.onmessage = (event) => {
+            const obj = JSON.parse(event.data);
+            handleWebSocketMessage(obj);
+        };
+
+        websocket.onclose = () => {
+            console.log('WebSocket connection closed');
+        };
+
+        websocket.onerror = (error) => {
+            console.error('WebSocket error observed:', error);
+        }
+
+        setWs(websocket);
+
+        return () => {
+            websocket.close();
+        };
+    }, []);
+
 
     useEffect(() => {
         if (choiceOne && choiceTwo) {
             setDisabled(true);
 
             if (choiceOne.src === choiceTwo.src) {
-                setCards(prevCards => {
-                    return prevCards.map(card => {
-                        if (card.src === choiceOne.src) {
-                            return { ...card, matched: true };
-                        } else {
-                            return card;
-                        }
-                    });
-                });
+                setCards(prevCards => prevCards.map(card => {
+                    if (card.src === choiceOne.src) {
+                        return { ...card, matched: true };
+                    }
+                    return card;
+                }));
 
                 setPlayerScores(prevScores => ({
                     ...prevScores,
@@ -112,6 +164,7 @@ function App() {
     useEffect(() => {
         if (cards.length > 0 && cards.every(card => card.matched)) {
             setGameOver(true);
+            ws.send(JSON.stringify({ type: 'game_over', playerScores }));
         }
     }, [cards]);
 
@@ -130,27 +183,11 @@ function App() {
         shuffleCards();
     }, []);
 
-    // ws.onmessage = function (event) {
-    //     const obj = JSON.parse(event.data);
-    //     if (obj.type === 'message') {
-    //         let msg = `<b>${obj.name}:</b> ${obj.message}`;
-    //         $('#messages').append($('<li>').html(msg));
-    //     }
-    //     if (obj.type === 'sys_c_connect') {
-    //         let msg = `<b>SYSTEM:</b> ${obj.name} is connected`;
-    //         $('#messages').append($('<li>').html(msg));
-    //     }
-    //     if (obj.type === 'sys_c_disconnect') {
-    //         let msg = `<b>SYSTEM:</b> ${obj.name} is disconnected`;
-    //         $('#messages').append($('<li>').html(msg));
-    //     }
-    // }
-
     return (
         <div className="App">
             <div className="game">
                 <h1>Fabled Elements</h1>
-                
+
                 {!gameStarted && (
                     <p>Waiting for another player to join...</p>
                 )}
@@ -173,11 +210,11 @@ function App() {
             <div className="info">
                 <div className="info-grid">
                     <p>Totel Rounds: {totalrounds}</p>
-                    <p className="score-left"> ({playerNames[1] || 'Player 1'}) Score: {playerScores[1]}</p>
-                    <p className="score-right"> ({playerNames[2] || 'Player 2'}) Score: {playerScores[2]}</p>
-                    <p>currentPlayer : Player {currentPlayer}</p>
+                    <p className="score-left"> {playerNames[1] || 'Player 1'} Score: {playerScores[1]}</p>
+                    <p className="score-right"> {playerNames[2] || 'Player 2'} Score: {playerScores[2]}</p>
+                    <p>currentPlayer : {playerNames[currentPlayer] || 'Player' [currentPlayer]} </p>
                 </div>
-                <ChatRoom ws={ws} />
+                <ChatRoom ws={ws} messages={messages} />
             </div>
 
             {gameOver && (

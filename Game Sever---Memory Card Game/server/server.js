@@ -12,11 +12,13 @@ app.use(express.static(path.join(__dirname, '..', 'build')));
 
 let connectedClients = [];
 let playerNames = {};
+let totalrounds = 0;
+let playerScores = { 1: 0, 2: 0 };
+let currentPlayer = 1;
 
 wss.on('connection', function (ws) {
 
     console.log('User connected');
-    ws.username = 'anonymous';
 
     if (connectedClients.length >= 2) {
         console.log('Game is full, cannot join.');
@@ -25,24 +27,20 @@ wss.on('connection', function (ws) {
         return;
     }
 
+    const playerIndex = connectedClients.length + 1;
     connectedClients.push(ws);
+    playerNames[playerIndex] = `Player ${playerIndex}`;
 
-    if (connectedClients.length === 1) {
-        playerNames[1] = ws.username;
-    } else if (connectedClients.length === 2) {
-        playerNames[2] = ws.username;
-    }
-
-    wss.clients.forEach(function (client) {
+    wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ type: 'sys_c_connect', name: ws.username, message: '' }));
+            client.send(JSON.stringify({ type: 'sys_c_connect', name: playerNames[playerIndex], message: '' }));
             client.send(JSON.stringify({ type: 'player_names', playerNames }));
         }
     });
 
     if (connectedClients.length === 2) {
         console.log('Starting game for 2 players');
-        wss.clients.forEach(function (client) {
+        wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ type: 'game_start', playerNames }));
             }
@@ -53,47 +51,72 @@ wss.on('connection', function (ws) {
         var jsonObj = JSON.parse(message);
         console.log(jsonObj);
 
-        
         if (jsonObj.type === 'set_name') {
             ws.username = jsonObj.name;
-            if (connectedClients.length === 1) {
-                playerNames[1] = ws.username;
-            } else if (connectedClients.length === 2) {
-                playerNames[2] = ws.username;
-            }
+            playerNames[playerIndex] = ws.username;
 
-            wss.clients.forEach(function(client) {
+            wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'sys_c_connect', name: ws.username, message: '' }));
-                    client.send(JSON.stringify({ type: 'player_names', playerNames })); // 發送更新的玩家名稱
+                    client.send(JSON.stringify({ type: 'sys_c_connect', name: playerNames[playerIndex], message: '' }));
+                    client.send(JSON.stringify({ type: 'player_names', playerNames }));
                 }
             });
         }
 
         if (jsonObj.type === 'message') {
-            wss.clients.forEach(function (client) {
+            wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ type: 'message', name: ws.username, message: jsonObj.message }));
+                    client.send(JSON.stringify({ type: 'message', name: playerNames[playerIndex], message: jsonObj.message }));
                 }
             });
         }
+
+        if (jsonObj.type === 'update_game_state') {
+            totalrounds = jsonObj.totalrounds;
+            console.log(totalrounds);
+            playerScores = jsonObj.playerScores;
+            console.log(playerScores);
+            currentPlayer = jsonObj.currentPlayer;
+            console.log(currentPlayer);
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(jsonObj));
+                }
+            });
+        }
+
+        if (jsonObj.type === 'game_over') {
+            wss.clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({ type: 'game_over', playerScores }));
+                }
+            });
+        }
+
     });
 
     ws.on('close', function () {
         console.log('User disconnected');
+        const index = connectedClients.indexOf(ws);
+
+        if (index !== -1) {
+            connectedClients.splice(index, 1);
+            delete playerNames[playerIndex];
+        }
+
         connectedClients = connectedClients.filter(client => client !== ws);
         delete playerNames[1];
-        wss.clients.forEach(function (client) {
+        wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ type: 'sys_c_disconnect', name: ws.username, message: '' }));;
+                client.send(JSON.stringify({ type: 'sys_c_disconnect', name: playerNames[playerIndex], message: '' }));;
+                client.send(JSON.stringify({ type: 'player_names', playerNames }));
             }
         });
-
     });
 
     if (connectedClients.length < 2) {
         console.log('Game ended, waiting for new players...');
-        connectedClients.forEach(function (client) {
+        connectedClients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify({ type: 'game_end' }));
             }
