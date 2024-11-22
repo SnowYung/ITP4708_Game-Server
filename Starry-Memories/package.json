@@ -1,24 +1,24 @@
 {
-  "name": "game-sever---memory-card-game",
+  "name": "starry-memories",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "server": "node server/server.js"
+    "server": "node server/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "description": "",
   "dependencies": {
     "express": "^4.21.1",
-    "game-sever---memory-card-game": "file:",
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
     "socket.io": "^4.8.1",
     "ws": "^8.18.0",
-    "zeromq": "^5.3.1"
+    "zeromq": "^6.1.2"
   },
   "browserslist": {
     "production": [

@@ -186,7 +186,7 @@ function App() {
     return (
         <div className="App">
             <div className="game">
-                <h1>Fabled Elements</h1>
+                <h1>星辰記憶 - Starry Memories</h1>
 
                 {!gameStarted && (
                     <p>Waiting for another player to join...</p>
