@@ -1,0 +1,8 @@
+.card-grid {
+    padding: 10px 0px 0px 10px;
+    display: grid;
+    grid-template-columns: repeat(11, calc((100% / 11) • 10px));
+    grid-template-rows: repeat(4, calc(100% / 4 • 10px));
+    column-gap: 10px;
+    row-gap: 10px;
+}
