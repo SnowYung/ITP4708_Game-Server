@@ -12,6 +12,9 @@ app.use(express.static(path.join(__dirname, '..', 'build')));
 let connectedClients = [];
 let playerNames = {};
 
+let availablePlayerSlots = [1, 2];
+
+
 class StarryMemories {
     constructor() {
         this._totalRounds = 0;
@@ -20,9 +23,6 @@ class StarryMemories {
         this._currentPlayer = 1;
     }
 
-    javascript
-
-    複製
     reset() {
         this._totalRounds = 0;
         this._cards = [];
@@ -65,18 +65,14 @@ class StarryMemories {
 
 let gameState = new StarryMemories();
 
-let availablePlayerSlots = [1, 2];
-
 wss.on('connection', function (ws) {
     console.log('User connected, waiting for name...');
 
-    stylus
-
-    複製
     ws.on('message', function (message) {
         const jsonObj = JSON.parse(message);
 
         if (jsonObj.type === 'set_name') {
+
             if (connectedClients.length >= 2) {
                 console.log('Game is full, cannot join.');
                 ws.send(JSON.stringify({ type: 'game_full' }));
@@ -96,13 +92,13 @@ wss.on('connection', function (ws) {
 
             wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({
-                        type: 'sys_c_connect',
-                        name: playerNames[playerIndex]
+                    client.send(JSON.stringify({ 
+                        type: 'sys_c_connect', 
+                        name: playerNames[playerIndex] 
                     }));
-                    client.send(JSON.stringify({
-                        type: 'player_names',
-                        playerNames
+                    client.send(JSON.stringify({ 
+                        type: 'player_names', 
+                        playerNames 
                     }));
                 }
             });
@@ -121,22 +117,16 @@ wss.on('connection', function (ws) {
             const playerIndex = ws.playerIndex;
             wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({
-                        type: 'message',
-                        name: playerNames[playerIndex],
-                        message: jsonObj.message
+                    client.send(JSON.stringify({ 
+                        type: 'message', 
+                        name: playerNames[playerIndex], 
+                        message: jsonObj.message 
                     }));
                 }
             });
         }
 
         if (jsonObj.type === 'update_game_state') {
-
-            if (jsonObj.currentPlayer !== ws.playerIndex) {
-                console.log(`Player ${ws.playerIndex} attempted to update game state out of turn.`);
-                return;
-            }
-
             gameState.totalRounds = jsonObj.totalRounds;
             gameState.cards = jsonObj.cards;
             gameState.playerScores = jsonObj.playerScores;
@@ -168,16 +158,17 @@ wss.on('connection', function (ws) {
             delete playerNames[playerIndex];
             availablePlayerSlots.push(playerIndex);
 
+
             wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({
-                        type: 'sys_c_disconnect',
-                        name: `Player ${playerIndex}`,
-                        message: ''
+                    client.send(JSON.stringify({ 
+                        type: 'sys_c_disconnect', 
+                        name: `Player ${playerIndex}`, 
+                        message: '' 
                     }));
-                    client.send(JSON.stringify({
-                        type: 'player_names',
-                        playerNames
+                    client.send(JSON.stringify({ 
+                        type: 'player_names', 
+                        playerNames 
                     }));
 
                     if (connectedClients.length <= 1) {
