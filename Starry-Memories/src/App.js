@@ -270,14 +270,14 @@ function App() {
             <div className="game">
                 <h1>星辰記憶 • Starry Memories</h1>
 
-                {isConnecting && !gameStarted && <p>Connecting to the game...</p>}
+                {isConnecting && !gameStarted && <h2>Connecting to the game...</h2>}
 
                 {!playerNameSet && !gameStarted && !isConnecting && (
-                    <p>Welcome! Please enter your name to join the game</p>
+                    <h2>Welcome! Please enter your name to join the game</h2>
                 )}
 
                 {playerNameSet && !gameStarted && !isConnecting && (
-                    <p>Waiting for another player to join...</p>
+                    <h2>Waiting for another player to join...</h2>
                 )}
 
                 {gameStarted && (
@@ -336,7 +336,7 @@ function App() {
                             Start New Game
                         </button>
                     ) : (
-                        <p>Waiting for the other player to be ready...</p>
+                        <h2>Waiting for the other player to be ready...</h2>
                     )}
                 </div>
             )}
