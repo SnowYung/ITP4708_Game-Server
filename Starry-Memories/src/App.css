@@ -14,12 +14,16 @@
     justify-content: space-evenly;
 }
 
+.App .game h1{
+    font-size: 100px;
+}
+
 .App .game .card-grid {
     padding: 10px 0px 0px 10px;
 
     display: grid;
-    grid-template-columns: repeat(11, calc((100% / 11) - 10px));
-    grid-template-rows: repeat(4, calc(100% / 4 - 10px));
+    grid-template-columns: repeat(5, calc((100% / 5) - 10px));
+    grid-template-rows: repeat(2, calc(100% /2 - 10px));
 
     column-gap: 10px;
     row-gap: 10px;
@@ -60,11 +64,23 @@
     right: 0;
     bottom: 0;
 
-    background-color: #aaaaaacc;
+    background-color: #aaaaaaf7;
     color: black;
 
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
     align-items: center;
+}
+
+.game-over h1 {
+    font-size: 120px;
+}
+
+.game-over h2 {
+    font-size: 75px;
+}
+
+.game-over h3 {
+    font-size: 50px;
 }

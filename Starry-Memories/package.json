@@ -17,6 +17,7 @@
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
     "socket.io": "^4.8.1",
+    "starry-memories": "file:",
     "ws": "^8.18.0",
     "zeromq": "^6.1.2"
   },
