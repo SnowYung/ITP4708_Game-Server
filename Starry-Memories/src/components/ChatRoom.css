@@ -4,33 +4,35 @@
     display: flex;
     flex-flow: column nowrap;
 
+    overflow: scroll;
+
     form {
         background: #e6e6fa;
         padding: 3px;
         width: 100%;
     }
-
+    
     #n {
         border: 0;
         padding: 3px;
     }
-
+    
     #m {
         border: 0;
         padding: 3px;
         margin-right: 2px;
     }
-
+    
     form button {
         background: #ee82ee;
         padding: 5px;
     }
-
+    
     .messages {
         flex-grow: 1;
-
+        
         background-color: #aaaaaa28;
-
+        
         list-style-type: none;
         margin: 0;
         padding: 0;

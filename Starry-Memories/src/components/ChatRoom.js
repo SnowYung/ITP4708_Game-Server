@@ -26,7 +26,7 @@ export default function ChatRoom({ ws, messages }) {
             </ul>
             <form onSubmit={handleSubmit}>
                 <input id="message" value={message} onChange={e => setMessage(e.target.value)} autoComplete="off" placeholder={playerName === '' ? "Enter your name..." : "Type a message..."}/>
-                <button>Send</button>
+                <button className='button'>Send</button>
             </form>
         </div>
     )
