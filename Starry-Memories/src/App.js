@@ -155,7 +155,7 @@ function App() {
     };
 
     useEffect(() => {
-        const websocket = new WebSocket(`ws://${location.hostname}:1234`);
+        const websocket = new WebSocket(`ws://${location.hostname}:7101`);
 
         websocket.onopen = () => {
             console.log('WebSocket connection opened');
@@ -240,6 +240,9 @@ function App() {
         if (cards.length > 0 && cards.every((card) => card.matched)) {
             setGameOver(true);
             ws.send(JSON.stringify({ type: 'game_over', playerScores }));
+        }
+        if (setGameOver === true){
+            ws.send(JSON.stringify({ type: 'backup_data', playerScores }));
         }
     }, [cards]);
 

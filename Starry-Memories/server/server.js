@@ -4,6 +4,21 @@ const app = express();
 const WebSocket = require('ws');
 const { createServer } = require('http');
 
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost:27017/StarryMemories', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+}).then(() => {
+    console.log('MongoDB connected');
+}).catch(err => {
+    console.error('MongoDB connection error:', err);
+});
+
+const Message = require('./models/Message');
+const GameRecord = require('./models/GameRecord');
+const { collection } = require('./models/Message');
+
 const server = createServer(app);
 const wss = new WebSocket.Server({ server });
 
@@ -13,7 +28,8 @@ let connectedClients = [];
 let playerNames = {};
 let availablePlayerSlots = [1, 2];
 let isProcessingUpdate = false;
-let readyForNewGame = {1:false, 2:false};
+let readyForNewGame = { 1: false, 2: false };
+let isGameOverProcessed = false;
 
 class StarryMemories {
     constructor() {
@@ -119,11 +135,16 @@ wss.on('connection', function (ws) {
 
         if (jsonObj.type === 'message') {
             const playerIndex = ws.playerIndex;
+            const playerName = playerNames[playerIndex];
+
+            const newMessage = new Message({ playerName, message: jsonObj.message });
+            newMessage.save().then(() => console.log('Message saved'));
+
             wss.clients.forEach((client) => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({
                         type: 'message',
-                        name: playerNames[playerIndex],
+                        name: playerName,
                         message: jsonObj.message
                     }));
                 }
@@ -182,8 +203,27 @@ wss.on('connection', function (ws) {
             }
         }
 
-        if (jsonObj.type === 'game_over') {
-            readyForNewGame = {1:false, 2:false};
+        if (jsonObj.type === 'game_over' && !isGameOverProcessed) {
+            readyForNewGame = { 1: false, 2: false }
+            isGameOverProcessed = true;
+
+            let winnerIndex = null;
+            if (gameState.playerScores[1] > gameState.playerScores[2]) {
+                winnerIndex = 1;
+            } else if (gameState.playerScores[1] < gameState.playerScores[2]) {
+                winnerIndex = 2;
+            }
+
+            for (let playerIndex = 1; playerIndex <= 2; playerIndex++) {
+                const playerName = playerNames[playerIndex];
+                const score = gameState.playerScores[playerIndex];
+                const totalRounds = gameState.totalRounds;
+                const Win = playerIndex == winnerIndex ? true : false
+
+                const gameRecord = new GameRecord({ playerName, score, totalRounds, Win });
+                gameRecord.save().then(() => console.log('Game record saved'));
+            }
+
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({ type: 'game_over', playerScores: gameState.playerScores }));
@@ -196,12 +236,13 @@ wss.on('connection', function (ws) {
             if (playerIndex) {
                 readyForNewGame[playerIndex] = true;
                 console.log(`Player ${playerIndex} is ready for a new game.`);
-
+                
                 if (Object.values(readyForNewGame).every((ready) => ready)) {
                     console.log('Both players are ready for a new game. Restarting game.');
-
+                    
                     gameState.reset();
                     readyForNewGame = { 1: false, 2: false };
+                    isGameOverProcessed = false;
 
                     wss.clients.forEach((client) => {
                         if (client.readyState === WebSocket.OPEN) {
@@ -247,6 +288,6 @@ wss.on('connection', function (ws) {
     });
 });
 
-server.listen(1234, function () {
-    console.log('listening on *:1234');
+server.listen(7101, function () {
+    console.log('listening on *:7101');
 });
