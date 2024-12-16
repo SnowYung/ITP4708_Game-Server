@@ -15,7 +15,11 @@
 }
 
 .App .game h1{
-    font-size: 100px;
+    font-size: 50px;
+}
+
+.App .game h2{
+    font-size: 25px;
 }
 
 .App .game .card-grid {
@@ -74,13 +78,13 @@
 }
 
 .game-over h1 {
-    font-size: 120px;
+    font-size: 100px;
 }
 
 .game-over h2 {
-    font-size: 75px;
+    font-size: 50px;
 }
 
 .game-over h3 {
-    font-size: 50px;
+    font-size: 25px;
 }
