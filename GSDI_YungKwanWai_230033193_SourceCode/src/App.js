@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
 import SingleCard from './components/SingleCard';
 import ChatRoom from './components/ChatRoom';
@@ -22,6 +22,9 @@ function App() {
     const [isConnecting, setIsConnecting] = useState(true);
     const [isPlayerReady, setIsPlayerReady] = useState(false);
     const [waitingForOtherPlayer, setWaitingForOtherPlayer] = useState(false);
+
+    const audioRef = useRef(null);
+    const contextRef = useRef(null);
 
     const shuffleCards = () => {
         const shuffledCards = [...cardImages, ...cardImages]
@@ -154,6 +157,29 @@ function App() {
         }
     };
 
+    const handlePlayMusic = () => {
+        contextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        audioRef.current = new Audio('/crystal-ambient-piano.mp3');
+
+        audioRef.current.muted = false;
+        const source = contextRef.current.createMediaElementSource(audioRef.current);
+        source.connect(contextRef.current.destination);
+        audioRef.current.loop = true;
+
+        audioRef.current.play().then(() => {
+            console.log('Playback started');
+        }).catch((error) => {
+            console.error('Playback failed:', error);
+        });
+    };
+
+    const handleStopMusic = () => {
+        if (audioRef.current) {
+            audioRef.current.muted = true;
+            audioRef.current.currentTime = 0;
+        }
+    };
+
     useEffect(() => {
         const websocket = new WebSocket(`ws://${location.hostname}:7101`);
 
@@ -173,7 +199,7 @@ function App() {
             setIsConnecting(true);
             alert('Connection closed. Attempting to reconnect...');
             setTimeout(() => {
-                setWs(new WebSocket(`ws://${location.hostname}:1234`));
+                setWs(new WebSocket(`ws://${location.hostname}:7101`));
             }, 3000);
         };
 
@@ -241,7 +267,7 @@ function App() {
             setGameOver(true);
             ws.send(JSON.stringify({ type: 'game_over', playerScores }));
         }
-        if (setGameOver === true){
+        if (setGameOver === true) {
             ws.send(JSON.stringify({ type: 'backup_data', playerScores }));
         }
     }, [cards]);
@@ -318,6 +344,7 @@ function App() {
                         Who Trun:{' '}
                         {playerNames[currentPlayer] || `Player ${currentPlayer}`}
                     </p>
+                    <button onClick={handlePlayMusic}>Play Music</button><button onClick={handleStopMusic}>Stop Music</button>
                 </div>
                 <ChatRoom ws={ws} messages={messages} />
             </div>
